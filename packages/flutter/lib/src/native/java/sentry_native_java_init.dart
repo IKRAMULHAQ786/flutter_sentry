@@ -278,7 +278,10 @@ void configureAndroidOptions({
     native.SdkVersion? sdkVersion = androidOptions.sdkVersion
       ?..releasedBy(arena);
     final versionName = native.BuildConfig.VERSION_NAME!..releasedBy(arena);
-    final versionNameString = versionName.toDartString();
+    // Do not read the Java string here (toDartString): GetStringChars on this
+    // jstring segfaults inside the init callback on Shorebird-built apps.
+    // The client name only needs a version label, so use the Dart SDK version.
+    final versionNameString = options.sdk.version;
     if (sdkVersion == null) {
       sdkVersion = native.SdkVersion(
         androidSdkName.toJString()..releasedBy(arena),
